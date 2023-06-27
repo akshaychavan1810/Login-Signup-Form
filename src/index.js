@@ -46,19 +46,21 @@ app.post('/signup', async (req, res) => {
         password: req.body.password
     }
 
-    const checking = await LogInCollection.findOne({ name: req.body.name })
-
-   try{
-    if (checking.name === req.body.name && checking.password===req.body.password) {
-        res.send("user details already exists")
-    }
-    else{
-        await LogInCollection.insertMany([data])
-    }
-   }
-   catch{
-    res.send("wrong inputs")
-   }
+    try {
+        const existingUser = await LogInCollection.findOne({ name: req.body.name });
+    
+        if (existingUser) {
+          res.send("User details already exist");
+        } else {
+          await LogInCollection.insertMany({
+            name: req.body.name,
+            password: req.body.password,
+          });
+        }
+      } catch (error) {
+        res.send("Error in signing up");
+      }
+    
 
     res.status(201).render("home", {
         naming: req.body.name
